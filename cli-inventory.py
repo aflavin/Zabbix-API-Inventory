@@ -1,8 +1,9 @@
 import sys
-import getopt
+#import getopt
 import datetime
 import csv
 import re
+import platform
 import argparse
 import requests
 import tkinter as tk
@@ -42,7 +43,7 @@ def main():
             z = ZabbixAPI(serverip)
             try:
                 z.login(user=user, password=password)
-                print("Now logged into ZabbixAPI version " + z.api_version())
+                print("Logged into ZabbixAPI version " + z.api_version())
             except ZabbixAPIException as e:
                 print(e, "\nProgram will now close.")
                 sys.exit(2)
@@ -136,8 +137,13 @@ def writecsv(writelist, filepath):
             filename = ''
         elif re.search('\....$', filepath) or re.search('\.....$', filepath):
             filename = '.csv'
+        elif re.search(r'\\$', filepath) or re.search('/$', filepath):
+            filename = 'Inventory_' + str(datetime.date.today()) + ".csv"
         else:
-            filename = '\Inventory_' + str(datetime.date.today()) + ".csv"
+            if re.search('Windows', platform.system()):
+                filename = '\Inventory_' + str(datetime.date.today()) + ".csv"
+            else:
+                filename = '/Inventory_' + str(datetime.date.today()) + ".csv"
     try:
         with open(filepath + filename, 'w', newline='') as result:
             writer = csv.writer(result, dialect='excel')
